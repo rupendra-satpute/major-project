@@ -1,3 +1,7 @@
+if(process.env.NODE_ENV != "production"){
+  require('dotenv').config()
+}
+
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -11,18 +15,41 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 const session = require("express-session");
+const MongoStore = require("connect-mongo").default;
 const flash = require("connect-flash");   
 
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
-// Session Config
+// //  MongoDB Connection
+// const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const dbUrl = process.env.MONGO_URL;
+
+const store = MongoStore.create({
+    mongoUrl: dbUrl,
+    crypto: {
+        secret:  process.env.SECRET,
+    },
+    touchAfter: 24 * 3600, // time period in seconds
+});
+
+store.on("error", function (e) {
+    console.log("SESSION STORE ERROR", err);
+});
 const sessionOptions = {
-    secret: "mysupersecretcode",
+    store,
+    secret:  process.env.SECRET,
     resave: false,
-    saveUninitialized: true
+    saveUninitialized: true,
+    cookie: {
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+        httpOnly: true,
+    },
 };
+
+
 
 // Middleware
 app.use(cors());
@@ -50,20 +77,24 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-//  MongoDB Connection
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
-main()
-    .then(() => {
-        console.log("connected to db");
-    })
-    .catch((err) => {
-        console.log(err);
-    });
 
 async function main() {
-    await mongoose.connect(MONGO_URL);
+    await mongoose.connect(dbUrl);
 }
+
+main()
+.then(() => {
+    console.log("Connected to DB");
+
+    app.listen(8080, () => {
+        console.log("server is listening to port 8080");
+    });
+
+})
+.catch((err) => {
+    console.log(err);
+});
 
 // View Engine
 app.set("view engine", "ejs");
@@ -98,11 +129,8 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
+    console.log(err); // actual error terminal me print hoga
+
     let { statusCode = 500, message = "Something went wrong" } = err;
     res.status(statusCode).render("listings/error.ejs", { message });
-});
-
-//  Server Start
-app.listen(8080, () => {
-    console.log("server is listening to port 8080");
 });

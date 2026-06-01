@@ -1,34 +1,52 @@
 const Listing = require("../models/listing.js");
-
+const mongoose = require("mongoose");
 module.exports.index = async (req, res) => {
     const allListings = await Listing.find({});
     res.render("listings/index.ejs", { allListings });
 };
+// Index Route
+module.exports.index = async (req, res) => {
+    const allListings = await Listing.find({});
+    res.render("listings/index.ejs", { allListings });
+}
 module.exports.renderNewForm =  (req, res) => {
     res.render("listings/new.ejs");
 };
 
 module.exports.showListing = async (req, res) => {
     let { id } = req.params;
+
     const listing = await Listing.findById(id)
-        .populate("reviews")
+        .populate({
+            path: "reviews",
+            populate: {
+                path: "author",
+            },
+        })
         .populate("owner");
 
     if (!listing) {
         req.flash("error", "Listing you requested does not exist");
         return res.redirect("/listings");
     }
-    console.log(listing);  // Debugging log to check the listing object
+
     res.render("listings/show.ejs", { listing });
 };
-
 module.exports.createlisting = async (req, res) => {
-        const newListing = new Listing(req.body.listing);
-        newListing.owner = req.user._id; // Set the owner to the currently logged-in user
-        await newListing.save();
-        res.redirect("/listings");
-    };
 
+       let url = req.file.path;
+    let filename = req.file.filename;
+
+    const newListing = new Listing(req.body.listing);
+      newListing.owner = req.user._id;
+    newListing.image = { url , filename };
+ 
+    await newListing.save();
+
+    req.flash("success", "New Listing Created!");
+
+    res.redirect("/listings");
+};
 module.exports.renderEditForm = async (req, res) => {
     const { id } = req.params;
 
@@ -43,8 +61,8 @@ module.exports.renderEditForm = async (req, res) => {
 
 module.exports.updatelisting = async (req, res) => {
         let {id} = req.params;
-        let listing = await listing.findById(id);
-        if (!listing.owner.equals(currUser._id)){
+        let listing = await Listing.findById(id);
+        if (!listing.owner.equals(req.user._id)){
             req.flash("error", "You don't have permission to edit ");
             return res.redirect(`/listings/${id}`);
         }

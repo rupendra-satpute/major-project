@@ -1,4 +1,7 @@
 const Joi = require('joi');
+const { model } = require('mongoose');
+const { title } = require('process');
+const review = require('./models/review');
 
 module.exports.listingSchema = Joi.object({
     listing: Joi.object({
@@ -6,8 +9,8 @@ module.exports.listingSchema = Joi.object({
         description: Joi.string().required(),
         price: Joi.number().required().min(0),
         location: Joi.string().required(),
-        image: Joi.string().allow("",null),
         country: Joi.string().required(),
+       image : Joi.string().allow("", null),
     }).required()
 });
 

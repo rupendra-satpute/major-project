@@ -21,7 +21,7 @@ module.exports.saveRedirectUrl = (req, res, next) => {
 module.exports.isOwner = async (req, res, next) => {
     let { id } = req.params;
         let lising = await Listing.findById(id);
-        if(!lising.owner.equals(req.user._id)) { // Check if the logged-in user is the owner of the listing
+        if(!lising.owner.equals(req.local.currUser._id)) { // Check if the logged-in user is the owner of the listing
             req.flash("error", "You are not owner of this listing");
             return res.redirect(`/listings/${id}`);
         }
