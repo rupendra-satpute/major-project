@@ -84,16 +84,25 @@ passport.deserializeUser(User.deserializeUser());
 async function main() {
     await mongoose.connect(dbUrl);
 }
-
+// for local hosted mongoDB, use this:
 main()
 .then(() => {
     console.log("Connected to DB");
-})
-.catch((err) => {
-    console.log(err);
-});
 
-module.exports = app;
+    app.listen(8080, () => {
+        console.log("server is listening to port 8080");
+    });
+})
+// for deployed mongoDB, use this:
+// main()
+// .then(() => {
+//     console.log("Connected to DB");
+// })
+// .catch((err) => {
+//     console.log(err);
+// });
+
+// module.exports = app;
 
 // View Engine
 app.set("view engine", "ejs");

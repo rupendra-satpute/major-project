@@ -10,9 +10,9 @@ body{
     background-color: white;
 
 }
-.fa-compass{
-    color: red;
-    font-size: 2rem;
+.logo{
+  height: 45px;
+  width: auto;
 }
 .nav-link{
     color: black !important;
