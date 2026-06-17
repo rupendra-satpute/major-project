@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router({ mergeParams : true });
 const wrapAsync = require("../utils/wrapAsync.js");
 const Listing = require("../models/listing.js");
-const { isLoggedIn, isOwner,validateListing } = require("../middleware.js");
+const { isLoggedIn, isOwner,validateListing } = require("../middlewares.js");
 const mongoose = require("mongoose");
 
 const listingController = require("../controllers/listings.js");
