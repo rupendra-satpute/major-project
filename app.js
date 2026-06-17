@@ -25,6 +25,8 @@ const userRouter = require("./routes/user.js");
 // //  MongoDB Connection
 // const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 const dbUrl = process.env.MONGO_URL;
+console.log("MONGO_URL exists:", !!process.env.MONGO_URL);
+console.log("SECRET exists:", !!process.env.SECRET);
 
 const store = MongoStore.create({
     mongoUrl: dbUrl,
@@ -86,15 +88,12 @@ async function main() {
 main()
 .then(() => {
     console.log("Connected to DB");
-
-    app.listen(8080, () => {
-        console.log("server is listening to port 8080");
-    });
-
 })
 .catch((err) => {
     console.log(err);
 });
+
+module.exports = app;
 
 // View Engine
 app.set("view engine", "ejs");
