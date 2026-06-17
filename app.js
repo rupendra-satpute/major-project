@@ -103,7 +103,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
 app.get("/", (req, res) => {
-    res.send("hi, i am root");
+     res.redirect("/listings");
 });
 
 //  Demo User Route (fixed password typo)
